@@ -511,9 +511,9 @@ class VideoProcessor {
     // Create audio streams with proper timing for each media
     photos.forEach((media, i) => {
       if (media.type === 'video') {
-        // For videos, create silent audio as fallback for videos without audio
-        const videoDuration = settings.applyPhotoDurationToVideos && media.duration && media.duration > photoDuration ? photoDuration : (media.duration || photoDuration);
-        audioFilter += `anullsrc=channel_layout=stereo:sample_rate=44100:duration=${videoDuration}[video_audio${i}];`;
+        // For videos, use actual video audio with aresample to ensure consistent format
+        // Use aresample to ensure consistent sample rate, with silent fallback if no audio stream
+        audioFilter += `[${i}:a]aresample=44100,aformat=channel_layouts=stereo[video_audio${i}];`;
         audioStreams.push(`[video_audio${i}]`);
       } else {
         // For images, create silent audio of photo duration
